@@ -1,0 +1,35 @@
+services:
+  webapp:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      - MYSQL_URL=mysql://root:admin@database:3306/webappdb
+    depends_on:
+      - database
+    restart: always
+
+  database:
+    image: mysql:9.0
+    environment:
+      MYSQL_ROOT_PASSWORD: admin
+      MYSQL_DATABASE: webappdb
+      MYSQL_USER: snowl
+      MYSQL_PASSWORD: admin
+    ports:
+      - "3307:3306"
+    volumes:
+      - dbdata:/var/lib/mysql
+    restart: always
+
+  test:
+    build: .
+    command: ["yarn", "test"]
+    environment:
+      - API_URL=http://webapp:3000
+    depends_on:
+      - webapp
+    restart: "no"
+
+volumes:
+  dbdata:

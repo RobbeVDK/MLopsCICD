@@ -1,0 +1,41 @@
+services:
+  webapp:
+    image: robbevdkhogent/webapp:latest
+    ports:
+      - "3000:3000"
+    environment:
+      - MYSQL_URL=mysql://root:admin@database:3306/webappdb
+    depends_on:
+      database:
+        condition: service_healthy
+    restart: always
+
+  database:
+    image: mysql:9.0
+    environment:
+      - MYSQL_ROOT_PASSWORD=admin
+      - MYSQL_DATABASE=webappdb
+      - MYSQL_USER=snowl
+      - MYSQL_PASSWORD=admin
+    ports:
+      - "3307:3306"
+    volumes:
+      - dbdata:/var/lib/mysql
+    restart: always
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -p$${MYSQL_ROOT_PASSWORD}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  test:
+    image: robbevdkhogent/webapp:latest
+    command: ["yarn", "test"]
+    environment:
+      - API_URL=http://webapp:3000
+    depends_on:
+      - webapp
+    restart: "no"
+
+volumes:
+  dbdata:
