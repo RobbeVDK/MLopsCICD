@@ -6,8 +6,6 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    env:
-      LINT_VERSION: ${{ vars.LINT_VERSION }}
     steps:
       - name: Check out repository code
         uses: actions/checkout@v4
